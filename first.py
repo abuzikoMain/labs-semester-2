@@ -1,9 +1,11 @@
 from datetime import date
+import uuid
+
 class BankAccount(object):
     def __init__(self, balance = 100):
         self.number = _next_number()
         self.balance = balance
-
+        self.id = uuid.uuid4()
         self.created_date = date.today()
 
     def deposit(self, amount):

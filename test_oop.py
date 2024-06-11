@@ -77,5 +77,12 @@ class TestBankAccount(unittest.TestCase):
         self.assertEqual(test_account_1.balance, 99)
         self.assertEqual(test_account_2.balance, 99)
 
+
+# myuuid = uuid.uuid4()
+# myuuidStr = str(myuuid)
+
+# sameMyUuid = uuid.UUID(myuuidStr)
+# assert myuuid == sameMyUuid
+
 if __name__ == '__main__':
     unittest.main()
