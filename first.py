@@ -1,5 +1,30 @@
 from datetime import date
+from datetime import datetime as tm
 import uuid
+import pickle
+
+class PersistenceAccount(object):
+    @staticmethod
+    def serialize(account):
+        with open('bank_account.pkl', 'wb') as f:
+            pickle.dump(account, f)
+        f.closed
+    @staticmethod
+    def deserialize():
+        with open('bank_account.pkl', 'rb') as f:
+            account = pickle.load(f)
+        f.closed
+        return account
+    
+class BankTransaction(object):
+    def __init__(self, amount: int) -> None:
+        self.when = tm.now()
+        self.amount = amount
+
+    def __del__(self):
+        with open('transaction.txt', 'a') as f:
+            f.write('when {0} : amount {1} \n'.format(self.when, self.amount))
+        f.closed
 
 class BankAccount(object):
     def __init__(self, balance = 100):
@@ -7,7 +32,17 @@ class BankAccount(object):
         self.balance = balance
         self.id = uuid.uuid4()
         self.created_date = date.today()
-
+        self.queue = []
+        
+    @classmethod
+    def create_bank_account(cls, value):
+        return cls(value)
+    
+    def get_transaction(self):
+        for each in range(len(self.queue)):
+            item = self.queue.pop(0)
+            print(f'when: {item.when}, amount: {item.amount}')
+    
     def deposit(self, amount):
         if self.is_integer_and_positive(amount):
             self.balance += amount
@@ -46,6 +81,7 @@ def _next_number():
     return _next
 
 if __name__ == '__main__':
+    
     ba = BankAccount(100)
-    ba.deposit(50)
-    print(ba)
+    PersistenceAccount.serialize(ba)
+    print(PersistenceAccount.deserialize())
