@@ -13,7 +13,7 @@ class PersistenceAccount(object):
             account = pickle.load(f)
         f.closed
         return account
-    
+
 class BankTransaction(object):
     def __init__(self, amount = 100, type_transaction = 'test_transaction', old_value = 0, new_value = 100):
         self.when = datetime.today()
@@ -68,7 +68,34 @@ class BankAccount(object):
     
     def __repr__(self):
         return 'number: {0}, balance: {1}'.format(self.number, self.balance)
+
+class PersonalBankAccount(BankAccount):
+    def __init__(self, balance = 0, name = None):
+        super(PersonalBankAccount, self).__init__(balance)
+        self.name = name
+
+    def __str__(self):
+        return 'number: {0}, balance: {1}, name: {2}'.format(self.number, 
+        self.balance, self.name)
     
+    def interest(self, rate):
+        self.balance *= (1 + rate)
+
+class OverdrawnBankAccount(PersonalBankAccount):
+    def __init__(self, balance = 0, overdrawn = -1000):
+        super(OverdrawnBankAccount, self).__init__(balance)
+        self.overdrawn = overdrawn
+
+    def __str__(self):
+        return 'number: {0}, balance: {1}, name: {2}, overdrawn {3}'\
+        .format(self.number, self.balance, self.name, self.overdrawn)
+    
+    def withdraw(self, amount):
+        if self.balance - amount > self.overdrawn:
+            self.balance -= amount
+            old_value = self.balance + amount
+            self.queue.append(BankTransaction(amount=amount, type_transaction='withdraw', \
+                                           old_value=old_value, new_value=self.balance))
 _next = 0
 def _next_number():
     global _next
@@ -88,7 +115,9 @@ def test_withdraw(account):
     print(account)
 
 if __name__ == '__main__':
-    ba = BankAccount()
-    test_deposit(ba)
-    test_withdraw(ba)
-    ba.get_transaction()
+    person = PersonalBankAccount(100, 'Alex')
+    person.interest(.3)
+    print(person)
+    oba = OverdrawnBankAccount(100)
+    test_deposit(oba)
+    test_withdraw(oba)
